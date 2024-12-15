@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_todo_list/models/todo.dart';
+import 'package:simple_todo_list/models/todo_priority.dart';
 
 class TodoListItem extends StatelessWidget {
   final Todo todo;

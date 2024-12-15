@@ -1,24 +1,20 @@
-import 'package:equatable/equatable.dart';
+import 'package:simple_todo_list/models/todo_priority.dart';
 
-enum TodoPriority { low, medium, high }
-
-class Todo extends Equatable {
+class Todo {
   final String id;
   final String title;
   final String description;
   final bool isCompleted;
-  final DateTime createdAt;
-  final DateTime? completedAt;
   final TodoPriority priority;
+  final DateTime? completedAt;
 
-  const Todo({
+  Todo({
     required this.id,
     required this.title,
     required this.description,
     this.isCompleted = false,
-    required this.createdAt,
-    this.completedAt,
     this.priority = TodoPriority.low,
+    this.completedAt,
   });
 
   Todo copyWith({
@@ -26,29 +22,16 @@ class Todo extends Equatable {
     String? title,
     String? description,
     bool? isCompleted,
-    DateTime? createdAt,
-    DateTime? completedAt,
     TodoPriority? priority,
+    DateTime? completedAt,
   }) {
     return Todo(
       id: id ?? this.id,
       title: title ?? this.title,
       description: description ?? this.description,
       isCompleted: isCompleted ?? this.isCompleted,
-      createdAt: createdAt ?? this.createdAt,
-      completedAt: completedAt ?? this.completedAt,
       priority: priority ?? this.priority,
+      completedAt: completedAt ?? this.completedAt,
     );
   }
-
-  @override
-  List<Object?> get props => [
-        id,
-        title,
-        description,
-        isCompleted,
-        createdAt,
-        completedAt,
-        priority,
-      ];
 }

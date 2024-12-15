@@ -1,48 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:stacked_services/stacked_services.dart';
 import 'package:simple_todo_list/models/todo.dart';
 
 class TodoOptionsSheet extends StatelessWidget {
-  final Todo todo;
-  final Function() onEdit;
-  final Function() onDelete;
+  final Function(SheetResponse)? completer;
+  final SheetRequest? request;
 
   const TodoOptionsSheet({
-    required this.todo,
-    required this.onEdit,
-    required this.onDelete,
-    super.key,
-  });
+    Key? key,
+    this.completer,
+    this.request,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Extract todo from request data
+    final todo = request?.data as Todo?;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+      padding: const EdgeInsets.all(20),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            'Options for "${todo.title}"',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 20),
           ListTile(
             leading: const Icon(Icons.edit),
-            title: const Text('Edit Todo'),
+            title: const Text('Edit'),
             onTap: () {
-              Navigator.pop(context);
-              onEdit();
+              completer?.call(
+                SheetResponse(
+                  confirmed: true,
+                  data: {'action': 'edit', 'todo': todo},
+                ),
+              );
             },
           ),
           ListTile(
-            leading: const Icon(Icons.delete, color: Colors.red),
-            title:
-                const Text('Delete Todo', style: TextStyle(color: Colors.red)),
+            leading: const Icon(Icons.delete),
+            title: const Text('Delete'),
             onTap: () {
-              Navigator.pop(context);
-              onDelete();
+              completer?.call(
+                SheetResponse(
+                  confirmed: true,
+                  data: {'action': 'delete', 'todo': todo},
+                ),
+              );
             },
           ),
         ],

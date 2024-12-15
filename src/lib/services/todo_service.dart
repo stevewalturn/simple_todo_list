@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:simple_todo_list/models/todo.dart';
+import 'package:simple_todo_list/models/todo_priority.dart';
 
 class TodoService {
   final List<Todo> _todos = [];
