@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:simple_todo_list/models/todo.dart';
 import 'package:simple_todo_list/models/todo_priority.dart';
 import 'package:stacked_services/stacked_services.dart';
 
@@ -24,10 +25,9 @@ class _TodoFormDialogState extends State<TodoFormDialog> {
   @override
   void initState() {
     super.initState();
-    final todo = widget.request?.data as Todo?;
+    final todo = widget.request?.data is Todo ? widget.request?.data as Todo : null;
     _titleController = TextEditingController(text: todo?.title ?? '');
-    _descriptionController =
-        TextEditingController(text: todo?.description ?? '');
+    _descriptionController = TextEditingController(text: todo?.description ?? '');
     _selectedPriority = todo?.priority ?? TodoPriority.low;
   }
 
@@ -80,8 +80,7 @@ class _TodoFormDialogState extends State<TodoFormDialog> {
               items: TodoPriority.values.map((priority) {
                 return DropdownMenuItem(
                   value: priority,
-                  child:
-                      Text(priority.toString().split('.').last.toUpperCase()),
+                  child: Text(priority.toString().split('.').last.toUpperCase()),
                 );
               }).toList(),
               onChanged: (value) {
