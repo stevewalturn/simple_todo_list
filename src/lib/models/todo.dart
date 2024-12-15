@@ -7,15 +7,17 @@ class Todo {
   final bool isCompleted;
   final TodoPriority priority;
   final DateTime? completedAt;
+  final DateTime createdAt;
 
   Todo({
-    required this.id,
+    String? id,
     required this.title,
     required this.description,
     this.isCompleted = false,
     this.priority = TodoPriority.low,
     this.completedAt,
-  });
+  })  : id = id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        createdAt = DateTime.now();
 
   Todo copyWith({
     String? id,
