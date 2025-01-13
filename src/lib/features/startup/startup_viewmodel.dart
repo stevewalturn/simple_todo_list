@@ -1,20 +1,29 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:simple_todo_list/app/app.locator.dart';
 import 'package:simple_todo_list/app/app.router.dart';
+import 'package:simple_todo_list/firebase_options.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
 
 class StartupViewModel extends BaseViewModel {
   final _navigationService = locator<NavigationService>();
 
-  // Place anything here that needs to happen before we get into the application
-  // ignore: strict_raw_type
-  Future runStartupLogic() async {
-    // ignore: inference_failure_on_instance_creation
-    await Future.delayed(const Duration(seconds: 1));
+  Future<void> runStartupLogic() async {
+    try {
+      setBusy(true);
 
-    // This is where you can make decisions on where your app should navigate when
-    // you have custom startup logic
+      // Initialize Firebase
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
 
-    await _navigationService.replaceWithHomeView();
+      await Future.delayed(const Duration(seconds: 1));
+
+      await _navigationService.replaceWithHomeView();
+    } catch (e) {
+      setError('Failed to initialize app: ${e.toString()}');
+    } finally {
+      setBusy(false);
+    }
   }
 }

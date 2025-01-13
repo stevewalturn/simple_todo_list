@@ -1,11 +1,9 @@
-import 'package:simple_todo_list/app/app.bottomsheets.dart';
-import 'package:simple_todo_list/app/app.dialogs.dart';
-import 'package:simple_todo_list/app/app.locator.dart';
-import 'package:simple_todo_list/models/todo.dart';
-import 'package:simple_todo_list/models/todo_priority.dart';
-import 'package:simple_todo_list/services/todo_service.dart';
 import 'package:stacked/stacked.dart';
 import 'package:stacked_services/stacked_services.dart';
+import '../../models/todo.dart';
+import '../../models/todo_priority.dart';
+import '../../services/todo_service.dart';
+import '../../app/app.locator.dart';
 
 class HomeViewModel extends StreamViewModel<List<Todo>> {
   final _todoService = locator<TodoService>();
@@ -20,64 +18,74 @@ class HomeViewModel extends StreamViewModel<List<Todo>> {
   Future<void> showAddTodoDialog() async {
     try {
       final response = await _dialogService.showCustomDialog(
-        variant: DialogType.todoForm,
+        variant: 'todoForm',
         title: 'Add New Todo',
+        description: 'Enter todo details',
       );
 
-      if (response != null && response.confirmed) {
-        final todoData = response.data as Map<String, dynamic>;
+      if (response?.confirmed ?? false) {
+        final data = response?.data as Map<String, dynamic>;
         final todo = Todo(
-          title: todoData['title'] as String,
-          description: todoData['description'] as String,
-          priority: todoData['priority'] as TodoPriority,
+          id: DateTime.now().toString(), // Generate a temporary ID
+          title: data['title'] as String,
+          description: data['description'] as String,
+          priority: data['priority'] as TodoPriority,
+          createdAt: DateTime.now(),
         );
         await _todoService.addTodo(todo);
       }
     } catch (e) {
-      setError('Failed to add todo. Please try again.');
+      setError(e.toString());
     }
   }
 
   Future<void> showEditTodoDialog(Todo todo) async {
     try {
       final response = await _dialogService.showCustomDialog(
-        variant: DialogType.todoForm,
+        variant: 'todoForm',
         title: 'Edit Todo',
+        description: 'Update todo details',
         data: todo,
       );
 
-      if (response != null && response.confirmed) {
-        final todoData = response.data as Map<String, dynamic>;
+      if (response?.confirmed ?? false) {
+        final data = response?.data as Map<String, dynamic>;
         final updatedTodo = todo.copyWith(
-          title: todoData['title'] as String?,
-          description: todoData['description'] as String?,
-          priority: todoData['priority'] as TodoPriority?,
+          title: data['title'] as String,
+          description: data['description'] as String,
+          priority: data['priority'] as TodoPriority,
         );
         await _todoService.updateTodo(updatedTodo);
       }
     } catch (e) {
-      setError('Failed to update todo. Please try again.');
+      setError(e.toString());
     }
   }
 
-  void toggleTodoCompletion(String id) {
+  Future<void> toggleTodoCompletion(String id, Todo todo) async {
     try {
-      _todoService.toggleTodoCompletion(id);
+      final updatedTodo = todo.copyWith(
+        isCompleted: !todo.isCompleted,
+        completedAt: !todo.isCompleted ? DateTime.now() : null,
+      );
+      await _todoService.updateTodo(updatedTodo);
     } catch (e) {
-      setError('Failed to update todo status. Please try again.');
+      setError(e.toString());
     }
   }
 
   Future<void> showTodoOptions(Todo todo) async {
     try {
       final response = await _bottomSheetService.showCustomSheet(
-        variant: BottomSheetType.todoOptions,
+        variant: 'todoOptions',
+        title: 'Todo Options',
+        description: 'Choose an action',
         data: todo,
       );
 
-      if (response?.confirmed == true) {
-        final action = response!.data['action'] as String;
-        switch (action) {
+      if (response?.confirmed ?? false) {
+        final data = response?.data as Map<String, dynamic>;
+        switch (data['action'] as String) {
           case 'edit':
             await showEditTodoDialog(todo);
             break;
@@ -87,12 +95,7 @@ class HomeViewModel extends StreamViewModel<List<Todo>> {
         }
       }
     } catch (e) {
-      setError('Failed to perform action. Please try again.');
+      setError(e.toString());
     }
-  }
-
-  @override
-  void onError(error) {
-    setError('An unexpected error occurred. Please try again.');
   }
 }

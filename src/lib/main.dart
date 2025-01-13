@@ -1,29 +1,25 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:simple_todo_list/app/app.bottomsheets.dart';
-import 'package:simple_todo_list/app/app.dialogs.dart';
-import 'package:simple_todo_list/app/app.locator.dart';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'features/app/app_view.dart';
+import 'firebase_options.dart';
 
 void main() async {
   await runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
-
+    
     await SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
 
-    await setupLocator();
-    setupDialogUi();
-    setupBottomSheetUi();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
 
     runApp(const AppView());
-  }, (exception, stackTrace) async {
-    // Handle exceptions here
-    print('Caught error: $exception');
-    print('Stack trace: $stackTrace');
-    // You might want to log this to a service or show a user-friendly error message
+  }, (error, stack) {
+    print('Caught error: $error');
+    print('Stack trace: $stack');
   });
 }
