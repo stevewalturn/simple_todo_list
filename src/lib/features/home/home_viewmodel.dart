@@ -34,7 +34,7 @@ class HomeViewModel extends StreamViewModel<List<Todo>> {
         await _todoService.addTodo(todo);
       }
     } catch (e) {
-      setError('Failed to add todo. Please try again.');
+      setError('Failed to add todo: ${e.toString()}');
     }
   }
 
@@ -49,22 +49,22 @@ class HomeViewModel extends StreamViewModel<List<Todo>> {
       if (response != null && response.confirmed) {
         final todoData = response.data as Map<String, dynamic>;
         final updatedTodo = todo.copyWith(
-          title: todoData['title'] as String?,
-          description: todoData['description'] as String?,
-          priority: todoData['priority'] as TodoPriority?,
+          title: todoData['title'] as String,
+          description: todoData['description'] as String,
+          priority: todoData['priority'] as TodoPriority,
         );
         await _todoService.updateTodo(updatedTodo);
       }
     } catch (e) {
-      setError('Failed to update todo. Please try again.');
+      setError('Failed to update todo: ${e.toString()}');
     }
   }
 
-  void toggleTodoCompletion(String id) {
+  Future<void> toggleTodoCompletion(String id, Todo todo) async {
     try {
-      _todoService.toggleTodoCompletion(id);
+      await _todoService.toggleTodoCompletion(id, todo);
     } catch (e) {
-      setError('Failed to update todo status. Please try again.');
+      setError('Failed to update todo status: ${e.toString()}');
     }
   }
 
@@ -87,12 +87,12 @@ class HomeViewModel extends StreamViewModel<List<Todo>> {
         }
       }
     } catch (e) {
-      setError('Failed to perform action. Please try again.');
+      setError('Failed to perform action: ${e.toString()}');
     }
   }
 
   @override
   void onError(error) {
-    setError('An unexpected error occurred. Please try again.');
+    setError('An unexpected error occurred: ${error.toString()}');
   }
 }

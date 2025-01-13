@@ -1,3 +1,4 @@
+import 'package:simple_todo_list/services/firebase_service.dart';
 import 'package:simple_todo_list/ui/bottom_sheets/notice/notice_sheet.dart';
 import 'package:simple_todo_list/ui/bottom_sheets/todo_options/todo_options_sheet.dart';
 import 'package:simple_todo_list/ui/dialogs/info_alert/info_alert_dialog.dart';
@@ -17,7 +18,11 @@ import 'package:stacked_services/stacked_services.dart';
     LazySingleton(classType: BottomSheetService),
     LazySingleton(classType: DialogService),
     LazySingleton(classType: NavigationService),
-    LazySingleton(classType: TodoService),
+    LazySingleton(classType: FirebaseService),
+    LazySingleton(
+      classType: TodoService,
+      dependencies: [FirebaseService],
+    ),
   ],
   bottomsheets: [
     StackedBottomsheet(classType: NoticeSheet),
