@@ -12,7 +12,9 @@ class FirebaseService {
           .orderBy('createdAt', descending: true)
           .snapshots()
           .map((snapshot) {
-        return snapshot.docs.map((doc) => Todo.fromMap(doc.data())).toList();
+        return snapshot.docs
+            .map((doc) => Todo.fromMap({...doc.data(), 'id': doc.id}))
+            .toList();
       });
     } catch (e) {
       throw Exception('Failed to get todos: ${e.toString()}');
@@ -21,7 +23,8 @@ class FirebaseService {
 
   Future<void> addTodo(Todo todo) async {
     try {
-      await _firestore.collection(_collection).doc(todo.id).set(todo.toMap());
+      final todoMap = todo.toMap();
+      await _firestore.collection(_collection).doc(todo.id).set(todoMap);
     } catch (e) {
       throw Exception('Failed to add todo: ${e.toString()}');
     }
@@ -29,10 +32,11 @@ class FirebaseService {
 
   Future<void> updateTodo(Todo todo) async {
     try {
+      final todoMap = todo.toMap();
       await _firestore
           .collection(_collection)
           .doc(todo.id)
-          .update(todo.toMap());
+          .update(todoMap);
     } catch (e) {
       throw Exception('Failed to update todo: ${e.toString()}');
     }

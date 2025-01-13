@@ -21,7 +21,6 @@ import 'package:stacked_services/stacked_services.dart';
     LazySingleton(classType: FirebaseService),
     LazySingleton(
       classType: TodoService,
-      dependencies: [FirebaseService],
     ),
   ],
   bottomsheets: [

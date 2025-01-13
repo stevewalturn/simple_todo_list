@@ -2,54 +2,49 @@ import 'dart:async';
 import 'package:simple_todo_list/models/todo.dart';
 import 'package:simple_todo_list/models/todo_priority.dart';
 import 'package:simple_todo_list/services/firebase_service.dart';
+import 'package:simple_todo_list/app/app.locator.dart';
 
 class TodoService {
-  final FirebaseService _firebaseService;
+  final FirebaseService _firebaseService = locator<FirebaseService>();
+  final _todoController = StreamController<List<Todo>>.broadcast();
+  final List<Todo> _todos = [];
 
-  TodoService(this._firebaseService);
+  Stream<List<Todo>> get todosStream => _todoController.stream;
+  List<Todo> get todos => _todos;
 
-  Stream<List<Todo>> get todosStream => _firebaseService.getTodosStream();
+  TodoService() {
+    _initializeStream();
+  }
+
+  void _initializeStream() {
+    _firebaseService.getTodosStream().listen((todos) {
+      _todos.clear();
+      _todos.addAll(todos);
+      _notifyListeners();
+    });
+  }
 
   Future<void> addTodo(Todo todo) async {
-    try {
-      if (todo.title.isEmpty) {
-        throw Exception('Todo title cannot be empty');
-      }
-      await _firebaseService.addTodo(todo);
-    } catch (e) {
-      throw Exception('Failed to add todo: ${e.toString()}');
-    }
+    await _firebaseService.addTodo(todo);
   }
 
   Future<void> updateTodo(Todo todo) async {
-    try {
-      await _firebaseService.updateTodo(todo);
-    } catch (e) {
-      throw Exception('Failed to update todo: ${e.toString()}');
-    }
+    await _firebaseService.updateTodo(todo);
   }
 
   Future<void> deleteTodo(String id) async {
-    try {
-      await _firebaseService.deleteTodo(id);
-    } catch (e) {
-      throw Exception('Failed to delete todo: ${e.toString()}');
-    }
+    await _firebaseService.deleteTodo(id);
   }
 
-  Future<void> toggleTodoCompletion(String id, Todo todo) async {
-    try {
-      final updatedTodo = todo.copyWith(
-        isCompleted: !todo.isCompleted,
-        completedAt: !todo.isCompleted ? DateTime.now() : null,
-      );
-      await _firebaseService.updateTodo(updatedTodo);
-    } catch (e) {
-      throw Exception('Failed to update todo status: ${e.toString()}');
-    }
+  List<Todo> getTodosByPriority(TodoPriority priority) {
+    return _todos.where((todo) => todo.priority == priority).toList();
   }
 
-  List<Todo> filterTodosByPriority(List<Todo> todos, TodoPriority priority) {
-    return todos.where((todo) => todo.priority == priority).toList();
+  void _notifyListeners() {
+    _todoController.add(_todos);
+  }
+
+  void dispose() {
+    _todoController.close();
   }
 }
